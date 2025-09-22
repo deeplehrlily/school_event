@@ -278,52 +278,52 @@ export default function AnalysisResultPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 p-4">
-      <div className="max-w-2xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 p-3 sm:p-4 lg:p-6">
+      <div className="max-w-sm sm:max-w-md lg:max-w-2xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3 sm:space-x-4">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => (window.location.href = "/")}
-              className="text-white hover:bg-white/10 rounded-xl"
+              className="text-white hover:bg-white/10 rounded-xl min-h-[44px] min-w-[44px] touch-manipulation"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <h1 className="text-xl font-bold text-white">현대자동차 스펙 분석 결과</h1>
+            <h1 className="text-lg sm:text-xl font-bold text-white">현대자동차 스펙 분석 결과</h1>
           </div>
         </div>
 
         <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-2xl">
-          <CardHeader className="text-center pb-4">
-            <div className="flex items-center justify-center space-x-4 mb-4">
+          <CardHeader className="text-center pb-4 px-4 sm:px-6">
+            <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4 mb-4">
               {analysisResult.completionStage === "합격" ? (
                 <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-12 h-12 text-green-600" />
-                  <Badge className="text-green-600 bg-green-50 border-green-200 px-8 py-4 text-2xl font-bold rounded-xl">
+                  <CheckCircle className="w-10 sm:w-12 h-10 sm:h-12 text-green-600" />
+                  <Badge className="text-green-600 bg-green-50 border-green-200 px-6 sm:px-8 py-3 sm:py-4 text-xl sm:text-2xl font-bold rounded-xl">
                     합격
                   </Badge>
                 </div>
               ) : (
                 <div className="flex items-center space-x-2">
-                  <XCircle className="w-12 h-12 text-red-600" />
-                  <Badge className="text-red-600 bg-red-50 border-red-200 px-8 py-4 text-2xl font-bold rounded-xl">
+                  <XCircle className="w-10 sm:w-12 h-10 sm:h-12 text-red-600" />
+                  <Badge className="text-red-600 bg-red-50 border-red-200 px-6 sm:px-8 py-3 sm:py-4 text-xl sm:text-2xl font-bold rounded-xl">
                     불합격
                   </Badge>
                 </div>
               )}
             </div>
-            <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
-              <p className="text-blue-800 font-bold text-lg">
+            <div className="bg-blue-50 rounded-xl p-3 sm:p-4 border border-blue-100">
+              <p className="text-blue-800 font-bold text-base sm:text-lg">
                 현대자동차 합격 가능성: {analysisResult.passRate.toFixed(1)}%
               </p>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-4 sm:px-6">
             <div className="space-y-4">
-              <Progress value={analysisResult.completionLevel} className="w-full h-4 bg-slate-200" />
-              <p className="text-sm text-slate-600 text-center bg-slate-50 rounded-lg p-3">
+              <Progress value={analysisResult.completionLevel} className="w-full h-3 sm:h-4 bg-slate-200" />
+              <p className="text-xs sm:text-sm text-slate-600 text-center bg-slate-50 rounded-lg p-3">
                 유사한 프로필 {analysisResult.similarProfiles}명 중 분석 결과
               </p>
             </div>
@@ -333,30 +333,30 @@ export default function AnalysisResultPage() {
         {/* Recommended Certifications */}
         {analysisResult.recommendedCertifications.length > 0 && (
           <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl">
-            <CardHeader>
+            <CardHeader className="px-4 sm:px-6">
               <CardTitle className="flex items-center space-x-3 text-purple-700">
-                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Award className="w-5 h-5 text-purple-600" />
+                <div className="w-8 sm:w-10 h-8 sm:h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Award className="w-4 sm:w-5 h-4 sm:h-5 text-purple-600" />
                 </div>
-                <span className="text-xl font-bold">추천 자격증 (우선 취득)</span>
+                <span className="text-lg sm:text-xl font-bold">추천 자격증 (우선 취득)</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4 sm:px-6">
               <div className="space-y-3">
                 {analysisResult.recommendedCertifications.map((cert, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-4 bg-purple-50 rounded-lg border border-purple-100"
+                    className="flex items-center justify-between p-3 sm:p-4 bg-purple-50 rounded-lg border border-purple-100"
                   >
                     <div className="flex items-center space-x-3">
                       <div className="w-3 h-3 bg-purple-500 rounded-full flex-shrink-0"></div>
-                      <span className="text-purple-800 font-medium">{cert}</span>
+                      <span className="text-sm sm:text-base text-purple-800 font-medium">{cert}</span>
                     </div>
-                    <Badge className="bg-purple-100 text-purple-700 border-purple-200">추천</Badge>
+                    <Badge className="bg-purple-100 text-purple-700 border-purple-200 text-xs sm:text-sm">추천</Badge>
                   </div>
                 ))}
               </div>
-              <p className="text-sm text-purple-600 mt-4 p-3 bg-purple-50 rounded-lg">
+              <p className="text-xs sm:text-sm text-purple-600 mt-4 p-3 bg-purple-50 rounded-lg">
                 * 현재 자격증 보유 수준에 맞춰 우선적으로 취득하면 좋은 자격증입니다
               </p>
             </CardContent>
@@ -366,23 +366,23 @@ export default function AnalysisResultPage() {
         {/* Strengths */}
         {analysisResult.strengths.length > 0 && (
           <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl">
-            <CardHeader>
+            <CardHeader className="px-4 sm:px-6">
               <CardTitle className="flex items-center space-x-3 text-green-700">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
+                <div className="w-8 sm:w-10 h-8 sm:h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-green-600" />
                 </div>
-                <span className="text-xl font-bold">강점</span>
+                <span className="text-lg sm:text-xl font-bold">강점</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4 sm:px-6">
               <div className="space-y-3">
                 {analysisResult.strengths.map((strength, index) => (
                   <div
                     key={index}
-                    className="flex items-start space-x-3 p-4 bg-green-50 rounded-lg border border-green-100"
+                    className="flex items-start space-x-3 p-3 sm:p-4 bg-green-50 rounded-lg border border-green-100"
                   >
-                    <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0 mt-2"></div>
-                    <span className="text-green-800 font-medium leading-relaxed">{strength}</span>
+                    <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0 mt-1 sm:mt-2"></div>
+                    <span className="text-sm sm:text-base text-green-800 font-medium leading-relaxed">{strength}</span>
                   </div>
                 ))}
               </div>
@@ -393,23 +393,25 @@ export default function AnalysisResultPage() {
         {/* Improvements */}
         {analysisResult.improvements.length > 0 && (
           <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl">
-            <CardHeader>
+            <CardHeader className="px-4 sm:px-6">
               <CardTitle className="flex items-center space-x-3 text-orange-700">
-                <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                  <AlertCircle className="w-5 h-5 text-orange-600" />
+                <div className="w-8 sm:w-10 h-8 sm:h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <AlertCircle className="w-4 sm:w-5 h-4 sm:h-5 text-orange-600" />
                 </div>
-                <span className="text-xl font-bold">보완점</span>
+                <span className="text-lg sm:text-xl font-bold">보완점</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4 sm:px-6">
               <div className="space-y-3">
                 {analysisResult.improvements.map((improvement, index) => (
                   <div
                     key={index}
-                    className="flex items-start space-x-3 p-4 bg-orange-50 rounded-lg border border-orange-100"
+                    className="flex items-start space-x-3 p-3 sm:p-4 bg-orange-50 rounded-lg border border-orange-100"
                   >
-                    <div className="w-3 h-3 bg-orange-500 rounded-full flex-shrink-0 mt-2"></div>
-                    <span className="text-orange-800 font-medium leading-relaxed">{improvement}</span>
+                    <div className="w-3 h-3 bg-orange-500 rounded-full flex-shrink-0 mt-1 sm:mt-2"></div>
+                    <span className="text-sm sm:text-base text-orange-800 font-medium leading-relaxed">
+                      {improvement}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -420,23 +422,23 @@ export default function AnalysisResultPage() {
         {/* Recommendations */}
         {analysisResult.recommendations.length > 0 && (
           <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl">
-            <CardHeader>
+            <CardHeader className="px-4 sm:px-6">
               <CardTitle className="flex items-center space-x-3 text-blue-700">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-blue-600" />
+                <div className="w-8 sm:w-10 h-8 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <TrendingUp className="w-4 sm:w-5 h-4 sm:h-5 text-blue-600" />
                 </div>
-                <span className="text-xl font-bold">상세 개선 방안</span>
+                <span className="text-lg sm:text-xl font-bold">상세 개선 방안</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
+            <CardContent className="px-4 sm:px-6">
+              <div className="space-y-4 sm:space-y-6">
                 {analysisResult.recommendations.map((recommendation, index) => (
-                  <div key={index} className="p-6 bg-blue-50 rounded-xl border-l-4 border-blue-500 shadow-sm">
+                  <div key={index} className="p-4 sm:p-6 bg-blue-50 rounded-xl border-l-4 border-blue-500 shadow-sm">
                     <div className="flex items-start space-x-3">
-                      <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                        <span className="text-white text-sm font-bold">{index + 1}</span>
+                      <div className="w-5 sm:w-6 h-5 sm:h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <span className="text-white text-xs sm:text-sm font-bold">{index + 1}</span>
                       </div>
-                      <p className="text-blue-900 leading-relaxed font-medium text-base">{recommendation}</p>
+                      <p className="text-sm sm:text-base text-blue-900 leading-relaxed font-medium">{recommendation}</p>
                     </div>
                   </div>
                 ))}
@@ -446,16 +448,16 @@ export default function AnalysisResultPage() {
         )}
 
         {/* Action Buttons */}
-        <div className="space-y-3 pb-8">
+        <div className="space-y-3 pb-6 sm:pb-8">
           <Button
-            className="w-full bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 hover:from-blue-700 hover:via-blue-800 hover:to-blue-900 text-white font-bold py-4 text-lg shadow-2xl border-0 rounded-xl transition-all duration-300 transform hover:scale-105"
+            className="w-full bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 hover:from-blue-700 hover:via-blue-800 hover:to-blue-900 text-white font-bold py-4 text-base sm:text-lg shadow-2xl border-0 rounded-xl transition-all duration-300 transform hover:scale-105 min-h-[56px] touch-manipulation"
             onClick={() => (window.location.href = "/")}
           >
             다시 분석하기
           </Button>
           <Button
             variant="outline"
-            className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20 backdrop-blur-sm rounded-xl py-4 transition-all duration-200"
+            className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20 backdrop-blur-sm rounded-xl py-4 transition-all duration-200 min-h-[56px] touch-manipulation"
             onClick={() => {
               const text = `내 현대자동차 스펙 분석 결과: ${analysisResult.completionStage} (${analysisResult.completionLevel}점)`
               const url = window.location.origin
