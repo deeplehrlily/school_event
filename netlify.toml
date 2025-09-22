@@ -8,28 +8,14 @@
 [functions]
   external_node_modules = ["sharp"]
 
-# Netlify Forms configuration for Next.js
+[build.environment]
+  NETLIFY_NEXT_VERIFY_FORMS = "false"
+
 [[redirects]]
   from = "/api/submit-form"
   to = "/.netlify/functions/submit-form"
   status = 200
 
-# Enable forms processing
-[build.processing]
-  skip_processing = false
-
-[build.processing.css]
-  bundle = true
-  minify = true
-
-[build.processing.js]
-  bundle = true
-  minify = true
-
-[build.processing.html]
-  pretty_urls = true
-
-# Form handling
 [[headers]]
   for = "/*"
   [headers.values]

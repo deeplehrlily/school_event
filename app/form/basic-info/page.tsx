@@ -63,10 +63,10 @@ export default function BasicInfoPage() {
       <div className="max-w-md mx-auto space-y-6">
         {/* Hidden Netlify form for data collection */}
         <form name="hyundai-basic-info" netlify="true" hidden>
-          <input type="text" name="name" value={formData.name} />
-          <input type="text" name="age" value={formData.age} />
-          <input type="text" name="education" value={formData.education} />
-          <input type="text" name="phone" value={formData.phone} />
+          <input type="text" name="name" value={formData.name} readOnly />
+          <input type="text" name="age" value={formData.age} readOnly />
+          <input type="text" name="education" value={formData.education} readOnly />
+          <input type="text" name="phone" value={formData.phone} readOnly />
         </form>
 
         {/* Header */}

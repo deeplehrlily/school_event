@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Netlify Forms</title>
+</head>
+<body>
+    <!-- Hidden forms for Netlify Forms detection -->
+    
+    <!-- Basic Info Form -->
+    <form name="basic-info" netlify hidden>
+        <input type="text" name="name" />
+        <input type="email" name="email" />
+        <input type="tel" name="phone" />
+        <input type="text" name="address" />
+        <input type="date" name="birthDate" />
+        <select name="gender">
+            <option value="male">남성</option>
+            <option value="female">여성</option>
+        </select>
+    </form>
+
+    <!-- High School Form -->
+    <form name="high-school" netlify hidden>
+        <input type="text" name="schoolName" />
+        <input type="text" name="major" />
+        <input type="number" name="graduationYear" />
+        <input type="number" name="gpa" />
+        <select name="graduationStatus">
+            <option value="graduated">졸업</option>
+            <option value="expected">졸업예정</option>
+        </select>
+    </form>
+
+    <!-- University Form -->
+    <form name="university" netlify hidden>
+        <input type="text" name="schoolName" />
+        <input type="text" name="major" />
+        <input type="number" name="graduationYear" />
+        <input type="number" name="gpa" />
+        <select name="graduationStatus">
+            <option value="graduated">졸업</option>
+            <option value="expected">졸업예정</option>
+        </select>
+    </form>
+
+    <!-- Certifications Form -->
+    <form name="certifications" netlify hidden>
+        <input type="checkbox" name="electrician" />
+        <input type="checkbox" name="machining" />
+        <input type="checkbox" name="welding" />
+        <input type="checkbox" name="automotive" />
+        <input type="checkbox" name="safety" />
+        <input type="checkbox" name="quality" />
+        <input type="checkbox" name="forklift" />
+        <input type="checkbox" name="crane" />
+        <input type="checkbox" name="computer" />
+        <input type="checkbox" name="language" />
+        <input type="text" name="otherCertifications" />
+        <input type="text" name="workExperience" />
+        <input type="text" name="militaryService" />
+        <input type="text" name="additionalInfo" />
+    </form>
+</body>
+</html>
