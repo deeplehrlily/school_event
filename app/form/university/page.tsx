@@ -47,14 +47,19 @@ export default function UniversityPage() {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const isFormValid = () => {
-    return (
-      formData.universityType && formData.universityName.trim() && formData.major && formData.gpa && formData.maxGpa
-    )
-  }
-
   const handleNext = async () => {
-    if (!isFormValid()) return
+    const missingFields = []
+
+    if (!formData.universityType) missingFields.push("학교 유형")
+    if (!formData.universityName.trim()) missingFields.push("학교명")
+    if (!formData.major) missingFields.push("학과 계열")
+    if (!formData.gpa) missingFields.push("평균 학점")
+    if (!formData.maxGpa) missingFields.push("만점")
+
+    if (missingFields.length > 0) {
+      alert(`다음 항목을 입력해주세요:\n\n• ${missingFields.join("\n• ")}`)
+      return
+    }
 
     setIsSubmitting(true)
 
@@ -217,18 +222,11 @@ export default function UniversityPage() {
               <p className="text-xs text-gray-500">학점은 소수점 둘째 자리까지 입력 가능합니다</p>
             </div>
 
-            {/* Validation feedback */}
-            {!isFormValid() && Object.values(formData).some((value) => value !== "") && (
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                <p className="text-xs sm:text-sm text-amber-700">* 모든 필수 항목을 입력해주세요</p>
-              </div>
-            )}
-
             {/* Next Button */}
             <Button
               className="w-full h-12 sm:h-11 text-base sm:text-sm font-semibold rounded-lg transition-all duration-200 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleNext}
-              disabled={!isFormValid() || isSubmitting}
+              disabled={isSubmitting}
             >
               {isSubmitting ? "제출 중..." : "다음 단계"}
               {!isSubmitting && <ArrowRight className="w-4 h-4 ml-2" />}

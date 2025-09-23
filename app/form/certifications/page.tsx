@@ -124,6 +124,26 @@ export default function CertificationsPage() {
   }
 
   const handleSubmit = async () => {
+    // 입력되지 않은 필수 항목 확인
+    const missingFields = []
+
+    if (
+      formData.craftsman.length === 0 &&
+      formData.industrialEngineer.length === 0 &&
+      formData.engineer.length === 0 &&
+      !formData.masterCraftsman &&
+      !formData.technicalMaster
+    ) {
+      missingFields.push("자격증 정보")
+    }
+
+    if (missingFields.length > 0) {
+      alert(
+        `다음 항목을 확인해주세요:\n\n• ${missingFields.join("\n• ")}\n\n최소 하나의 자격증 정보는 입력하거나 '없음'을 선택해주세요.`,
+      )
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -297,7 +317,7 @@ export default function CertificationsPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="masterCraftsman" className="text-xs sm:text-sm font-medium text-gray-700">
-                  기능장 (서술형)
+                  기능장
                 </Label>
                 <div className="flex items-center space-x-2 mb-2">
                   <Checkbox
@@ -322,7 +342,7 @@ export default function CertificationsPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="technicalMaster" className="text-xs sm:text-sm font-medium text-gray-700">
-                  기술사 (서술형)
+                  기술사
                 </Label>
                 <div className="flex items-center space-x-2 mb-2">
                   <Checkbox

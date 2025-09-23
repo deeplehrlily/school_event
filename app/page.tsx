@@ -10,7 +10,7 @@ export default function HomePage() {
 
   const handleShare = (platform: string) => {
     const url = window.location.href
-    const text = "내 스펙, 현대자동차 가기 괜찮을까? 현대자동차 채용 스펙 분석 서비스"
+    const text = "현대자동차 스펙분석기 - 내 스펙으로 현대자동차 합격 가능성을 분석해보세요!"
 
     switch (platform) {
       case "kakao":
@@ -45,7 +45,7 @@ export default function HomePage() {
       <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg space-y-6 sm:space-y-8 text-center relative z-10">
         <div className="space-y-3">
           <div className="inline-block bg-blue-600/30 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full border border-blue-400/30">
-            <p className="text-xs sm:text-sm text-blue-200 font-semibold">채용 스펙 분석 서비스</p>
+            <p className="text-xs sm:text-sm text-blue-200 font-semibold">현대자동차 스펙분석기</p>
           </div>
         </div>
 

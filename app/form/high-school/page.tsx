@@ -34,22 +34,23 @@ export default function HighSchoolPage() {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const isFormValid = () => {
+  const handleNext = async () => {
+    const missingFields = []
+
     const schoolTypeValid =
       formData.schoolType === "기타" ? formData.customSchoolType.trim() !== "" : formData.schoolType !== ""
 
-    return (
-      schoolTypeValid &&
-      formData.gradeAverage &&
-      formData.absences !== "" &&
-      formData.earlyLeaves !== "" &&
-      formData.tardiness !== "" &&
-      formData.results !== ""
-    )
-  }
+    if (!schoolTypeValid) missingFields.push("학교 유형")
+    if (!formData.gradeAverage) missingFields.push("내신 등급")
+    if (formData.absences === "") missingFields.push("결석")
+    if (formData.earlyLeaves === "") missingFields.push("조퇴")
+    if (formData.tardiness === "") missingFields.push("지각")
+    if (formData.results === "") missingFields.push("결과")
 
-  const handleNext = async () => {
-    if (!isFormValid()) return
+    if (missingFields.length > 0) {
+      alert(`다음 항목을 입력해주세요:\n\n• ${missingFields.join("\n• ")}`)
+      return
+    }
 
     setIsSubmitting(true)
 
@@ -233,18 +234,11 @@ export default function HighSchoolPage() {
               </div>
             </div>
 
-            {/* Validation feedback */}
-            {!isFormValid() && Object.values(formData).some((value) => value !== "") && (
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                <p className="text-xs sm:text-sm text-amber-700">* 모든 필수 항목을 입력해주세요</p>
-              </div>
-            )}
-
             {/* Next Button */}
             <Button
               className="w-full h-12 sm:h-11 text-base sm:text-sm font-semibold rounded-lg transition-all duration-200 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleNext}
-              disabled={!isFormValid() || isSubmitting}
+              disabled={isSubmitting}
             >
               {isSubmitting ? "제출 중..." : "다음 단계"}
               {!isSubmitting && <ArrowRight className="w-4 h-4 ml-2" />}

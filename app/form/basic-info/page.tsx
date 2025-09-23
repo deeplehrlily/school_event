@@ -43,14 +43,20 @@ export default function BasicInfoPage() {
     handleInputChange("phone", formatted)
   }
 
-  const isFormValid = () => {
-    return formData.name && formData.age && formData.education && formData.phone.length >= 13
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!isFormValid()) return
+    // 입력되지 않은 필수 항목 확인
+    const missingFields = []
+    if (!formData.name) missingFields.push("이름")
+    if (!formData.age) missingFields.push("나이")
+    if (!formData.education) missingFields.push("학력")
+    if (!formData.phone || formData.phone.length < 13) missingFields.push("전화번호")
+
+    if (missingFields.length > 0) {
+      alert(`다음 항목을 입력해주세요:\n\n• ${missingFields.join("\n• ")}`)
+      return
+    }
 
     setIsSubmitting(true)
 
@@ -186,17 +192,10 @@ export default function BasicInfoPage() {
                 />
               </div>
 
-              {/* Validation feedback */}
-              {!isFormValid() && (formData.name || formData.age || formData.education || formData.phone) && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <p className="text-xs sm:text-sm text-amber-700">* 모든 필수 항목을 입력해주세요</p>
-                </div>
-              )}
-
               <Button
                 type="submit"
                 className="w-full h-12 sm:h-11 text-base sm:text-sm font-semibold rounded-lg transition-all duration-200 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!isFormValid() || isSubmitting}
+                disabled={isSubmitting}
               >
                 {isSubmitting ? "제출 중..." : "다음 단계"}
                 {!isSubmitting && <ArrowRight className="w-4 h-4 ml-2" />}

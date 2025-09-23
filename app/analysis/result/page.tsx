@@ -197,12 +197,13 @@ export default function AnalysisResultPage() {
           }
         }
 
+        const detailedRecommendations: string[] = []
+
         if (!hasExperience) {
-          if (age <= 25) {
-            improvements.push("신입으로서 실무 경력이 부족하지만 연령상 성장 가능성이 높습니다")
-          } else {
-            improvements.push("실무 경력 부족으로 경쟁력이 다소 아쉽습니다")
-          }
+          improvements.push("실무 경력 부족으로 경쟁력이 다소 아쉽습니다")
+          detailedRecommendations.push(
+            "💼 경력 개선 전략: 현대자동차 채용에서 기능사 및 산업기사 등급 자격증 중 실무 연관성이 높은 자격증들이 높은 비율을 차지하고 있습니다. 특히 1-3년차 단기 경력자 비중이 전체의 과반 이상을 차지하므로, 유사 직무에 대한 경험과 실무 적응력을 갖춘 인재가 우선 선발되는 경향을 보여줍니다. 따라서 지게차운전기능사, 산업안전산업기사, 전기기능사 등 직무 연관성이 높은 자격증을 우선적으로 취득하고, 관련 분야에서 1년 이상의 실무 경험을 쌓는 것이 중요합니다.",
+          )
         }
 
         // Major analysis
@@ -229,8 +230,6 @@ export default function AnalysisResultPage() {
         // Calculate estimated pass rate based on score
         const passRate = Math.min(Math.max(score * 0.8, 10), 85)
 
-        const detailedRecommendations: string[] = []
-
         if (totalCerts === 0) {
           detailedRecommendations.push(
             "🎯 1순위 자격증 취득 전략: 현대자동차 합격자 데이터 분석 결과, 지게차운전기능사(18명), 산업안전산업기사(17명), 전기기능사(12명) 순으로 많이 보유하고 있습니다. 이 중 본인의 전공이나 관심 분야와 가장 가까운 자격증부터 취득하세요.",
@@ -256,14 +255,6 @@ export default function AnalysisResultPage() {
             "🔄 보유 자격증 재활용 전략: 현재 보유한 자격증이 생산직과 직접 연관이 낮더라도 포기하지 마세요. 해당 자격증 취득 과정에서 보여준 학습능력, 목표달성 의지, 전문성 추구 자세를 어필 포인트로 활용하고, 동시에 생산직 관련 자격증 추가 취득 계획을 구체적으로 제시하세요.",
           )
         }
-
-        detailedRecommendations.push(
-          "💪 체력 및 안전 관리: 생산직은 3교대 근무와 물리적 작업이 많아 체력이 중요합니다. 꾸준한 운동으로 체력을 기르고, 산업안전보건법과 작업장 안전수칙을 숙지하여 안전 의식이 높다는 점을 어필하세요.",
-        )
-
-        detailedRecommendations.push(
-          "🎯 면접 핵심 전략: 현대자동차의 인재상인 '도전정신', '창의성', '협업능력'에 맞는 경험담을 준비하세요. 특히 '어려운 상황을 극복한 경험', '팀워크로 문제를 해결한 사례', '새로운 기술이나 지식을 습득한 경험'을 구체적으로 준비하면 좋은 평가를 받을 수 있습니다.",
-        )
 
         setAnalysisResult({
           completionLevel: score,
@@ -386,8 +377,10 @@ export default function AnalysisResultPage() {
             <p className="text-blue-200 text-sm">다시 시도해주세요</p>
           </div>
           <Button
-            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-xl"
+            variant="ghost"
+            size="sm"
             onClick={() => (window.location.href = "/")}
+            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-xl"
           >
             처음으로 돌아가기
           </Button>
@@ -408,6 +401,7 @@ export default function AnalysisResultPage() {
                 style={{
                   left: `${Math.random() * 100}%`,
                   animationDelay: `${Math.random() * 3}s`,
+                  animationDuration: `${3 + Math.random() * 2}s`,
                   backgroundColor: ["#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#feca57", "#ff9ff3"][
                     Math.floor(Math.random() * 6)
                   ],
@@ -430,7 +424,7 @@ export default function AnalysisResultPage() {
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <h1 className="text-lg sm:text-xl font-bold text-white">현대자동차 스펙 분석 결과</h1>
+            <h1 className="text-lg sm:text-xl font-bold text-white">현대자동차 스펙분석기 결과</h1>
           </div>
         </div>
 
@@ -598,7 +592,7 @@ export default function AnalysisResultPage() {
             variant="outline"
             className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20 backdrop-blur-sm rounded-xl py-4 transition-all duration-200 min-h-[56px] touch-manipulation"
             onClick={() => {
-              const text = `내 현대자동차 스펙 분석 결과: ${analysisResult.completionStage} (${analysisResult.completionLevel}점)`
+              const text = `현대자동차 스펙분석기 결과: ${analysisResult.completionStage} (${analysisResult.completionLevel}점)`
               const url = window.location.origin
               navigator.clipboard.writeText(`${text}\n${url}`)
               alert("결과가 복사되었습니다!")
@@ -622,12 +616,15 @@ export default function AnalysisResultPage() {
           width: 10px;
           height: 10px;
           background: #ff6b6b;
-          animation: confetti-fall 3s linear infinite;
+          animation: confetti-fall linear infinite;
         }
         
         @keyframes confetti-fall {
           0% {
             transform: translateY(-100vh) rotate(0deg);
+            opacity: 1;
+          }
+          50% {
             opacity: 1;
           }
           100% {
