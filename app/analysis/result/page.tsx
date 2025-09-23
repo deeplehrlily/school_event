@@ -224,11 +224,11 @@ export default function AnalysisResultPage() {
           improvements.push("전공과 생산직 업무의 연관성이 낮습니다")
         }
 
-        const isPass = score >= 70
-        const completionStage = isPass ? "합격" : "불합격"
-
         // Calculate estimated pass rate based on score
         const passRate = Math.min(Math.max(score * 0.8, 10), 85)
+
+        const isPass = passRate >= 60
+        const completionStage = isPass ? "합격" : "불합격"
 
         if (totalCerts === 0) {
           detailedRecommendations.push(
@@ -327,8 +327,10 @@ export default function AnalysisResultPage() {
         }
 
         setTimeout(() => {
-          setShowConfetti(true)
-          setTimeout(() => setShowConfetti(false), 3000)
+          if (isPass) {
+            setShowConfetti(true)
+            setTimeout(() => setShowConfetti(false), 3000)
+          }
         }, 500)
       } catch (error) {
         console.error("Analysis error:", error)
@@ -524,7 +526,7 @@ export default function AnalysisResultPage() {
         )}
 
         {/* Improvements */}
-        {analysisResult.improvements.length > 0 && (
+        {(analysisResult.improvements.length > 0 || analysisResult.completionStage === "불합격") && (
           <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl">
             <CardHeader className="px-4 sm:px-6">
               <CardTitle className="flex items-center space-x-3 text-orange-700">
@@ -536,17 +538,26 @@ export default function AnalysisResultPage() {
             </CardHeader>
             <CardContent className="px-4 sm:px-6">
               <div className="space-y-3">
-                {analysisResult.improvements.map((improvement, index) => (
-                  <div
-                    key={index}
-                    className="flex items-start space-x-3 p-3 sm:p-4 bg-orange-50 rounded-lg border border-orange-100"
-                  >
+                {analysisResult.improvements.length > 0 ? (
+                  analysisResult.improvements.map((improvement, index) => (
+                    <div
+                      key={index}
+                      className="flex items-start space-x-3 p-3 sm:p-4 bg-orange-50 rounded-lg border border-orange-100"
+                    >
+                      <div className="w-3 h-3 bg-orange-500 rounded-full flex-shrink-0 mt-1 sm:mt-2"></div>
+                      <span className="text-sm sm:text-base text-orange-800 font-medium leading-relaxed">
+                        {improvement}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex items-start space-x-3 p-3 sm:p-4 bg-orange-50 rounded-lg border border-orange-100">
                     <div className="w-3 h-3 bg-orange-500 rounded-full flex-shrink-0 mt-1 sm:mt-2"></div>
                     <span className="text-sm sm:text-base text-orange-800 font-medium leading-relaxed">
-                      {improvement}
+                      현재 스펙으로는 합격 가능성이 낮습니다. 아래 개선 방안을 참고하여 경쟁력을 높여보세요.
                     </span>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
