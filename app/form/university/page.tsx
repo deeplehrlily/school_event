@@ -24,6 +24,7 @@ export default function UniversityPage() {
     gpa: "",
     maxGpa: "",
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const majorOptions = [
     "기계 (기계, 기계설계, 컴퓨터응용기계, 항공기계 등)",
@@ -52,81 +53,116 @@ export default function UniversityPage() {
     )
   }
 
-  const handleNext = () => {
-    if (isFormValid()) {
+  const handleNext = async () => {
+    if (!isFormValid()) return
+
+    setIsSubmitting(true)
+
+    try {
+      // 기본 정보 가져오기
+      const basicInfo = JSON.parse(sessionStorage.getItem("basicInfo") || "{}")
+
+      // Google Sheets에 데이터 제출
+      // await submitToGoogleSheets({
+      //   timestamp: new Date().toISOString(),
+      //   name: basicInfo.name || "미입력",
+      //   age: basicInfo.age || "미입력",
+      //   education: basicInfo.education || "대졸",
+      //   phone: basicInfo.phone || "미입력",
+      //   formType: "university",
+      //   additionalData: {
+      //     universityType: formData.universityType,
+      //     universityName: formData.universityName,
+      //     major: formData.major,
+      //     gpa: formData.gpa,
+      //     maxGpa: formData.maxGpa,
+      //   },
+      // })
+
+      // 세션 스토리지에 저장하고 최종 단계에서 통합 제출
       sessionStorage.setItem("universityInfo", JSON.stringify(formData))
       window.location.href = "/form/certifications"
+    } catch (error) {
+      console.error("Form submission error:", error)
+      alert("폼 제출 중 오류가 발생했습니다. 다시 시도해주세요.")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-md mx-auto space-y-6">
-        {/* Hidden Netlify form for university data */}
-        <form name="hyundai-university" netlify="true" hidden>
-          <input type="text" name="universityType" value={formData.universityType} />
-          <input type="text" name="universityName" value={formData.universityName} />
-          <input type="text" name="major" value={formData.major} />
-          <input type="text" name="gpa" value={formData.gpa} />
-          <input type="text" name="maxGpa" value={formData.maxGpa} />
-        </form>
-
+    <div className="min-h-screen bg-gray-50 p-3 sm:p-4">
+      <div className="max-w-sm sm:max-w-md mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" onClick={() => window.history.back()}>
+        <div className="flex items-center space-x-3 sm:space-x-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => window.history.back()}
+            className="min-h-[44px] min-w-[44px] touch-manipulation"
+          >
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div className="flex-1">
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div className="bg-blue-500 h-2 rounded-full w-2/4"></div>
             </div>
-            <p className="text-sm text-gray-600 mt-1">2/4 단계</p>
+            <p className="text-xs sm:text-sm text-gray-600 mt-1">2/4 단계</p>
           </div>
         </div>
 
         {/* Form Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl text-center">대학교 정보</CardTitle>
-            <p className="text-sm text-gray-600 text-center">대학교 관련 정보를 입력해주세요</p>
+        <Card className="shadow-lg">
+          <CardHeader className="px-4 sm:px-6">
+            <CardTitle className="text-lg sm:text-xl text-center">대학교 정보</CardTitle>
+            <p className="text-xs sm:text-sm text-gray-600 text-center">대학교 관련 정보를 입력해주세요</p>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-5 sm:space-y-6 px-4 sm:px-6">
             {/* University Type */}
             <div className="space-y-2">
-              <Label>재학중인 학교 유형 *</Label>
+              <Label className="text-sm sm:text-base font-medium">재학중인 학교 유형 *</Label>
               <Select onValueChange={(value) => handleInputChange("universityType", value)}>
-                <SelectTrigger>
+                <SelectTrigger className="h-12 sm:h-11 text-base sm:text-sm rounded-lg border-2 focus:border-blue-500 transition-colors">
                   <SelectValue placeholder="학교 유형을 선택해주세요" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="전문대">전문대</SelectItem>
-                  <SelectItem value="폴리텍">폴리텍</SelectItem>
-                  <SelectItem value="4년제">4년제</SelectItem>
+                  <SelectItem value="전문대" className="text-base sm:text-sm py-3 sm:py-2">
+                    전문대
+                  </SelectItem>
+                  <SelectItem value="폴리텍" className="text-base sm:text-sm py-3 sm:py-2">
+                    폴리텍
+                  </SelectItem>
+                  <SelectItem value="4년제" className="text-base sm:text-sm py-3 sm:py-2">
+                    4년제
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {/* University Name */}
             <div className="space-y-2">
-              <Label htmlFor="universityName">학교명 *</Label>
+              <Label htmlFor="universityName" className="text-sm sm:text-base font-medium">
+                학교명 *
+              </Label>
               <Input
                 id="universityName"
                 placeholder="예: 서울대학교"
                 value={formData.universityName}
                 onChange={(e) => handleInputChange("universityName", e.target.value)}
+                className="h-12 sm:h-11 text-base sm:text-sm rounded-lg border-2 focus:border-blue-500 transition-colors"
               />
             </div>
 
             {/* Major */}
             <div className="space-y-2">
-              <Label>학과 계열 *</Label>
+              <Label className="text-sm sm:text-base font-medium">학과 계열 *</Label>
               <Select onValueChange={(value) => handleInputChange("major", value)}>
-                <SelectTrigger>
+                <SelectTrigger className="h-12 sm:h-11 text-base sm:text-sm rounded-lg border-2 focus:border-blue-500 transition-colors">
                   <SelectValue placeholder="학과 계열을 선택해주세요" />
                 </SelectTrigger>
                 <SelectContent className="max-h-60">
                   {majorOptions.map((major, index) => (
-                    <SelectItem key={index} value={major}>
+                    <SelectItem key={index} value={major} className="text-base sm:text-sm py-3 sm:py-2">
                       {major}
                     </SelectItem>
                   ))}
@@ -136,11 +172,13 @@ export default function UniversityPage() {
 
             {/* GPA */}
             <div className="space-y-4">
-              <Label className="text-base font-medium">학점 정보</Label>
+              <Label className="text-sm sm:text-base font-medium">학점 정보</Label>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="gpa">평균 학점 *</Label>
+                  <Label htmlFor="gpa" className="text-xs sm:text-sm">
+                    평균 학점 *
+                  </Label>
                   <Input
                     id="gpa"
                     type="number"
@@ -148,20 +186,29 @@ export default function UniversityPage() {
                     placeholder="3.75"
                     value={formData.gpa}
                     onChange={(e) => handleInputChange("gpa", e.target.value)}
+                    className="h-12 sm:h-10 text-base sm:text-sm rounded-lg border-2 focus:border-blue-500 transition-colors"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="maxGpa">만점 *</Label>
+                  <Label className="text-xs sm:text-sm">만점 *</Label>
                   <Select onValueChange={(value) => handleInputChange("maxGpa", value)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-12 sm:h-10 text-base sm:text-sm rounded-lg border-2 focus:border-blue-500 transition-colors">
                       <SelectValue placeholder="만점" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="4.0">4.0</SelectItem>
-                      <SelectItem value="4.3">4.3</SelectItem>
-                      <SelectItem value="4.5">4.5</SelectItem>
-                      <SelectItem value="100">100</SelectItem>
+                      <SelectItem value="4.0" className="text-base sm:text-sm py-3 sm:py-2">
+                        4.0
+                      </SelectItem>
+                      <SelectItem value="4.3" className="text-base sm:text-sm py-3 sm:py-2">
+                        4.3
+                      </SelectItem>
+                      <SelectItem value="4.5" className="text-base sm:text-sm py-3 sm:py-2">
+                        4.5
+                      </SelectItem>
+                      <SelectItem value="100" className="text-base sm:text-sm py-3 sm:py-2">
+                        100
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -170,11 +217,27 @@ export default function UniversityPage() {
               <p className="text-xs text-gray-500">학점은 소수점 둘째 자리까지 입력 가능합니다</p>
             </div>
 
+            {/* Validation feedback */}
+            {!isFormValid() && Object.values(formData).some((value) => value !== "") && (
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-xs sm:text-sm text-amber-700">* 모든 필수 항목을 입력해주세요</p>
+              </div>
+            )}
+
             {/* Next Button */}
-            <Button className="w-full" onClick={handleNext} disabled={!isFormValid()}>
-              다음 단계
-              <ArrowRight className="w-4 h-4 ml-2" />
+            <Button
+              className="w-full h-12 sm:h-11 text-base sm:text-sm font-semibold rounded-lg transition-all duration-200 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleNext}
+              disabled={!isFormValid() || isSubmitting}
+            >
+              {isSubmitting ? "제출 중..." : "다음 단계"}
+              {!isSubmitting && <ArrowRight className="w-4 h-4 ml-2" />}
             </Button>
+
+            {/* Progress indicator */}
+            <div className="text-center pt-2">
+              <p className="text-xs text-gray-500">{Object.values(formData).filter(Boolean).length}/5 항목 완료</p>
+            </div>
           </CardContent>
         </Card>
       </div>

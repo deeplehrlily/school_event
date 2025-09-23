@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,6 +24,7 @@ export default function BasicInfoPage() {
     education: "",
     phone: "",
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleInputChange = (field: keyof BasicInfoData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -44,10 +47,24 @@ export default function BasicInfoPage() {
     return formData.name && formData.age && formData.education && formData.phone.length >= 13
   }
 
-  const handleNext = () => {
-    if (isFormValid()) {
-      // Store data in sessionStorage for later use
-      sessionStorage.setItem("basicInfo", JSON.stringify(formData))
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!isFormValid()) return
+
+    setIsSubmitting(true)
+
+    try {
+      sessionStorage.setItem(
+        "basicInfo",
+        JSON.stringify({
+          ...formData,
+          birthDate: new Date(new Date().getFullYear() - Number.parseInt(formData.age), 0, 1)
+            .toISOString()
+            .split("T")[0],
+          address: "미입력", // Default value for now
+        }),
+      )
 
       // Navigate based on education level
       if (formData.education === "고졸") {
@@ -55,20 +72,17 @@ export default function BasicInfoPage() {
       } else {
         window.location.href = "/form/university"
       }
+    } catch (error) {
+      console.error("Form submission error:", error)
+      alert("폼 제출 중 오류가 발생했습니다. 다시 시도해주세요.")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   return (
     <div className="min-h-screen bg-gray-50 p-3 sm:p-4 lg:p-6">
       <div className="max-w-sm sm:max-w-md mx-auto space-y-4 sm:space-y-6">
-        {/* Hidden Netlify form for data collection */}
-        <form name="hyundai-basic-info" netlify="true" hidden>
-          <input type="text" name="name" value={formData.name} readOnly />
-          <input type="text" name="age" value={formData.age} readOnly />
-          <input type="text" name="education" value={formData.education} readOnly />
-          <input type="text" name="phone" value={formData.phone} readOnly />
-        </form>
-
         {/* Header */}
         <div className="flex items-center space-x-3 sm:space-x-4">
           <Button
@@ -87,108 +101,114 @@ export default function BasicInfoPage() {
           </div>
         </div>
 
-        {/* Form Card */}
-        <Card className="shadow-lg">
-          <CardHeader className="px-4 sm:px-6">
-            <CardTitle className="text-lg sm:text-xl text-center">기본 정보</CardTitle>
-            <p className="text-xs sm:text-sm text-gray-600 text-center">개인정보를 입력해주세요</p>
-          </CardHeader>
-          <CardContent className="space-y-5 sm:space-y-6 px-4 sm:px-6">
-            {/* Name */}
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm sm:text-base font-medium">
-                이름 *
-              </Label>
-              <Input
-                id="name"
-                placeholder="홍길동"
-                value={formData.name}
-                onChange={(e) => handleInputChange("name", e.target.value)}
-                className="h-12 sm:h-11 text-base sm:text-sm rounded-lg border-2 focus:border-blue-500 transition-colors"
-                autoComplete="name"
-              />
-            </div>
-
-            {/* Age */}
-            <div className="space-y-2">
-              <Label htmlFor="age" className="text-sm sm:text-base font-medium">
-                나이 *
-              </Label>
-              <Input
-                id="age"
-                type="number"
-                inputMode="numeric"
-                placeholder="25"
-                value={formData.age}
-                onChange={(e) => handleInputChange("age", e.target.value)}
-                className="h-12 sm:h-11 text-base sm:text-sm rounded-lg border-2 focus:border-blue-500 transition-colors"
-                min="18"
-                max="65"
-              />
-            </div>
-
-            {/* Education */}
-            <div className="space-y-2">
-              <Label className="text-sm sm:text-base font-medium">학력 *</Label>
-              <Select onValueChange={(value) => handleInputChange("education", value)}>
-                <SelectTrigger className="h-12 sm:h-11 text-base sm:text-sm rounded-lg border-2 focus:border-blue-500 transition-colors">
-                  <SelectValue placeholder="학력을 선택해주세요" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="고졸" className="text-base sm:text-sm py-3 sm:py-2">
-                    고졸
-                  </SelectItem>
-                  <SelectItem value="초대졸" className="text-base sm:text-sm py-3 sm:py-2">
-                    초대졸 (전문대)
-                  </SelectItem>
-                  <SelectItem value="대졸" className="text-base sm:text-sm py-3 sm:py-2">
-                    대졸 (4년제)
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Phone */}
-            <div className="space-y-2">
-              <Label htmlFor="phone" className="text-sm sm:text-base font-medium">
-                전화번호 *
-              </Label>
-              <Input
-                id="phone"
-                type="tel"
-                inputMode="tel"
-                placeholder="010-0000-0000"
-                value={formData.phone}
-                onChange={(e) => handlePhoneChange(e.target.value)}
-                maxLength={13}
-                className="h-12 sm:h-11 text-base sm:text-sm rounded-lg border-2 focus:border-blue-500 transition-colors"
-                autoComplete="tel"
-              />
-            </div>
-
-            {/* Validation feedback */}
-            {!isFormValid() && (formData.name || formData.age || formData.education || formData.phone) && (
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                <p className="text-xs sm:text-sm text-amber-700">* 모든 필수 항목을 입력해주세요</p>
+        <form onSubmit={handleSubmit}>
+          <Card className="shadow-lg">
+            <CardHeader className="px-4 sm:px-6">
+              <CardTitle className="text-lg sm:text-xl text-center">기본 정보</CardTitle>
+              <p className="text-xs sm:text-sm text-gray-600 text-center">개인정보를 입력해주세요</p>
+            </CardHeader>
+            <CardContent className="space-y-5 sm:space-y-6 px-4 sm:px-6">
+              {/* Name */}
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm sm:text-base font-medium">
+                  이름 *
+                </Label>
+                <Input
+                  id="name"
+                  name="name"
+                  placeholder="홍길동"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  className="h-12 sm:h-11 text-base sm:text-sm rounded-lg border-2 focus:border-blue-500 transition-colors"
+                  autoComplete="name"
+                  required
+                />
               </div>
-            )}
 
-            {/* Next Button */}
-            <Button
-              className="w-full h-12 sm:h-11 text-base sm:text-sm font-semibold rounded-lg transition-all duration-200 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={handleNext}
-              disabled={!isFormValid()}
-            >
-              다음 단계
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+              {/* Age */}
+              <div className="space-y-2">
+                <Label htmlFor="age" className="text-sm sm:text-base font-medium">
+                  나이 *
+                </Label>
+                <Input
+                  id="age"
+                  name="age"
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="25"
+                  value={formData.age}
+                  onChange={(e) => handleInputChange("age", e.target.value)}
+                  className="h-12 sm:h-11 text-base sm:text-sm rounded-lg border-2 focus:border-blue-500 transition-colors"
+                  min="18"
+                  max="65"
+                  required
+                />
+              </div>
 
-            {/* Progress indicator */}
-            <div className="text-center pt-2">
-              <p className="text-xs text-gray-500">{Object.values(formData).filter(Boolean).length}/4 항목 완료</p>
-            </div>
-          </CardContent>
-        </Card>
+              {/* Education */}
+              <div className="space-y-2">
+                <Label className="text-sm sm:text-base font-medium">학력 *</Label>
+                <Select onValueChange={(value) => handleInputChange("education", value)} required>
+                  <SelectTrigger className="h-12 sm:h-11 text-base sm:text-sm rounded-lg border-2 focus:border-blue-500 transition-colors">
+                    <SelectValue placeholder="학력을 선택해주세요" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="고졸" className="text-base sm:text-sm py-3 sm:py-2">
+                      고졸
+                    </SelectItem>
+                    <SelectItem value="초대졸" className="text-base sm:text-sm py-3 sm:py-2">
+                      초대졸 (전문대)
+                    </SelectItem>
+                    <SelectItem value="대졸" className="text-base sm:text-sm py-3 sm:py-2">
+                      대졸 (4년제)
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Phone */}
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="text-sm sm:text-base font-medium">
+                  전화번호 *
+                </Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  inputMode="tel"
+                  placeholder="010-0000-0000"
+                  value={formData.phone}
+                  onChange={(e) => handlePhoneChange(e.target.value)}
+                  maxLength={13}
+                  className="h-12 sm:h-11 text-base sm:text-sm rounded-lg border-2 focus:border-blue-500 transition-colors"
+                  autoComplete="tel"
+                  required
+                />
+              </div>
+
+              {/* Validation feedback */}
+              {!isFormValid() && (formData.name || formData.age || formData.education || formData.phone) && (
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-xs sm:text-sm text-amber-700">* 모든 필수 항목을 입력해주세요</p>
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                className="w-full h-12 sm:h-11 text-base sm:text-sm font-semibold rounded-lg transition-all duration-200 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!isFormValid() || isSubmitting}
+              >
+                {isSubmitting ? "제출 중..." : "다음 단계"}
+                {!isSubmitting && <ArrowRight className="w-4 h-4 ml-2" />}
+              </Button>
+
+              {/* Progress indicator */}
+              <div className="text-center pt-2">
+                <p className="text-xs text-gray-500">{Object.values(formData).filter(Boolean).length}/4 항목 완료</p>
+              </div>
+            </CardContent>
+          </Card>
+        </form>
       </div>
     </div>
   )

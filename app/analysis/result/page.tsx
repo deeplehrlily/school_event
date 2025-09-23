@@ -21,9 +21,10 @@ interface AnalysisResult {
 export default function AnalysisResultPage() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showConfetti, setShowConfetti] = useState(false)
 
   useEffect(() => {
-    const analyzeUserData = () => {
+    const analyzeUserData = async () => {
       try {
         // Get user data from sessionStorage
         const basicInfo = JSON.parse(sessionStorage.getItem("basicInfo") || "{}")
@@ -93,32 +94,81 @@ export default function AnalysisResultPage() {
           }
         }
 
-        const userCerts = [
-          ...(certificationInfo.gineungsa || []),
-          ...(certificationInfo.saneopgisa || []),
-          ...(certificationInfo.gisa || []),
-          ...(certificationInfo.gineungjang || []),
-          ...(certificationInfo.gisulsa || []),
-        ]
-
-        const totalCerts = userCerts.length
-
-        if (totalCerts >= 3) {
-          score += 25
-          strengths.push(`${totalCerts}개의 자격증을 보유하여 전문성을 인정받을 수 있습니다`)
-        } else if (totalCerts >= 1) {
-          score += 15
-          strengths.push(`${totalCerts}개의 자격증을 보유하고 있습니다`)
-        } else {
-          improvements.push("자격증이 부족합니다")
-          if (totalCerts <= 1) {
-            recommendedCertifications.push("전기기능사", "기계가공기능사", "용접기능사")
-          }
+        const userCerts = {
+          craftsman: certificationInfo.craftsman || [],
+          industrialEngineer: certificationInfo.industrialEngineer || [],
+          engineer: certificationInfo.engineer || [],
+          masterCraftsman: certificationInfo.masterCraftsman ? [certificationInfo.masterCraftsman] : [],
+          technicalMaster: certificationInfo.technicalMaster ? [certificationInfo.technicalMaster] : [],
         }
+
+        const totalCerts = [
+          ...userCerts.craftsman,
+          ...userCerts.industrialEngineer,
+          ...userCerts.engineer,
+          ...userCerts.masterCraftsman,
+          ...userCerts.technicalMaster,
+        ].filter((cert) => cert && cert !== "없음").length
+
+        let certScore = 0
+
+        // High-value certifications for Hyundai production roles (based on image data)
+        const topCertifications = {
+          craftsman: ["지게차운전", "전기", "용접", "기계가공조립", "전자기기", "컴퓨터응용선반", "설비보전"],
+          industrialEngineer: ["산업안전", "전기", "공조냉동기계"],
+          engineer: ["산업안전", "전기", "공조냉동기계"],
+        }
+
+        // Score craftsman certifications (기능사)
+        userCerts.craftsman.forEach((cert) => {
+          if (topCertifications.craftsman.includes(cert)) {
+            certScore += 15 // High value craftsman certs
+            strengths.push(`${cert}기능사는 현대자동차 생산직에서 가장 선호하는 자격증입니다`)
+          } else {
+            certScore += 8 // Other craftsman certs
+          }
+        })
+
+        // Score industrial engineer certifications (산업기사)
+        userCerts.industrialEngineer.forEach((cert) => {
+          if (topCertifications.industrialEngineer.includes(cert)) {
+            certScore += 20 // High value industrial engineer certs
+            strengths.push(`${cert}산업기사는 중간관리자급에서 높이 평가받는 자격증입니다`)
+          } else {
+            certScore += 12
+          }
+        })
+
+        // Score engineer certifications (기사)
+        userCerts.engineer.forEach((cert) => {
+          if (topCertifications.engineer.includes(cert)) {
+            certScore += 25 // High value engineer certs
+            strengths.push(`${cert}기사는 기술직 채용에서 최고 수준의 자격증입니다`)
+          } else {
+            certScore += 15
+          }
+        })
+
+        // Score master craftsman (기능장)
+        if (userCerts.masterCraftsman.length > 0 && userCerts.masterCraftsman[0] !== "없음") {
+          certScore += 30
+          strengths.push("기능장 자격증은 해당 분야 최고 수준의 기술력을 인정받는 자격증입니다")
+        }
+
+        // Score technical master (기술사)
+        if (userCerts.technicalMaster.length > 0 && userCerts.technicalMaster[0] !== "없음") {
+          certScore += 35
+          strengths.push("기술사 자격증은 국가 최고 수준의 기술 전문가 자격으로 매우 높게 평가됩니다")
+        }
+
+        score += Math.min(certScore, 40) // Cap certification score at 40
 
         // Check for high-value certifications
         const highValueCerts = ["전기", "기계가공", "용접", "전자기기", "컴퓨터응용가공"]
-        const hasHighValueCert = userCerts.some((cert) => highValueCerts.some((valuable) => cert.includes(valuable)))
+        const hasHighValueCert =
+          userCerts.craftsman.some((cert) => highValueCerts.some((valuable) => cert.includes(valuable))) ||
+          userCerts.industrialEngineer.some((cert) => highValueCerts.some((valuable) => cert.includes(valuable))) ||
+          userCerts.engineer.some((cert) => highValueCerts.some((valuable) => cert.includes(valuable)))
 
         if (hasHighValueCert) {
           score += 10
@@ -128,12 +178,31 @@ export default function AnalysisResultPage() {
           recommendedCertifications.push("전기기능사", "기계가공기능사")
         }
 
-        // Experience analysis
+        let hasExperience = false
         if (certificationInfo.experience && certificationInfo.experience !== "없음") {
-          score += 10
-          strengths.push("관련 분야 실무 경험을 보유하고 있습니다")
-        } else {
-          improvements.push("실무 경력이 부족합니다")
+          hasExperience = true
+          const experienceYears = certificationInfo.experience.includes("년")
+            ? Number.parseInt(certificationInfo.experience)
+            : 0
+
+          if (experienceYears >= 3) {
+            score += 15
+            strengths.push(`${experienceYears}년의 풍부한 실무 경험을 보유하고 있습니다`)
+          } else if (experienceYears >= 1) {
+            score += 10
+            strengths.push(`${experienceYears}년의 실무 경험이 있어 현장 적응력이 좋습니다`)
+          } else {
+            score += 5
+            strengths.push("관련 분야 실무 경험을 보유하고 있습니다")
+          }
+        }
+
+        if (!hasExperience) {
+          if (age <= 25) {
+            improvements.push("신입으로서 실무 경력이 부족하지만 연령상 성장 가능성이 높습니다")
+          } else {
+            improvements.push("실무 경력 부족으로 경쟁력이 다소 아쉽습니다")
+          }
         }
 
         // Major analysis
@@ -162,52 +231,38 @@ export default function AnalysisResultPage() {
 
         const detailedRecommendations: string[] = []
 
-        if (totalCerts <= 1) {
+        if (totalCerts === 0) {
           detailedRecommendations.push(
-            "자격증 취득을 통한 전문성 강화: 현대자동차 생산직에서 가장 중요시하는 전기기능사, 기계가공기능사, 용접기능사 중 하나를 우선 취득하세요. 이 자격증들은 실제 생산라인에서 직접 활용되는 핵심 기술이며, 합격률을 20% 이상 높일 수 있습니다.",
+            "🎯 1순위 자격증 취득 전략: 현대자동차 합격자 데이터 분석 결과, 지게차운전기능사(18명), 산업안전산업기사(17명), 전기기능사(12명) 순으로 많이 보유하고 있습니다. 이 중 본인의 전공이나 관심 분야와 가장 가까운 자격증부터 취득하세요.",
+          )
+        } else if (totalCerts <= 2) {
+          detailedRecommendations.push(
+            "📈 자격증 업그레이드 전략: 현재 보유한 기능사 자격증을 바탕으로 같은 분야의 산업기사 자격증 취득을 목표로 하세요. 산업기사는 기능사보다 20% 이상 높은 평가를 받으며, 승진 기회도 더 많습니다.",
           )
         }
 
-        if (age > 30) {
+        if (age >= 20 && age <= 26) {
           detailedRecommendations.push(
-            "경력 어필 전략 수립: 나이가 많은 만큼 실무 경험과 안정성을 강조하세요. 이전 직장에서의 성과, 책임감 있는 업무 수행 경험, 팀워크 능력을 구체적인 사례와 함께 준비하면 연령 단점을 상쇄할 수 있습니다.",
+            `⭐ 연령대 활용 전략: 현재 연령(${age}세)은 현대자동차 합격자 중 가장 많은 비율(66.1%)을 차지하는 20대 초중반입니다. 이 연령대의 장점인 학습능력, 적응력, 성장가능성을 적극 어필하세요.`,
+          )
+        } else if (age > 26) {
+          detailedRecommendations.push(
+            "🎖️ 경력 어필 전략: 20대 후반 이상의 연령대는 안정성과 책임감을 강조해야 합니다. 이전 직장에서의 성과, 팀워크 경험, 문제해결 능력을 구체적인 사례와 함께 준비하세요.",
           )
         }
 
         if (!hasHighValueCert && totalCerts > 0) {
           detailedRecommendations.push(
-            "보유 자격증 활용도 극대화: 현재 보유한 자격증이 생산직과 직접 연관이 낮더라도, 해당 자격증을 통해 얻은 학습능력, 성취의지, 전문성 추구 자세를 어필하세요. 동시에 생산직 관련 자격증 추가 취득 계획을 구체적으로 제시하면 좋습니다.",
-          )
-        }
-
-        if (!certificationInfo.experience || certificationInfo.experience === "없음") {
-          detailedRecommendations.push(
-            "실무 경험 보완 방안: 직접적인 자동차 생산 경험이 없다면, 관련 분야 아르바이트, 인턴십, 직업훈련 프로그램 참여를 고려하세요. 특히 현대자동차 협력업체나 부품업체에서의 경험은 매우 높게 평가됩니다.",
-          )
-        }
-
-        if (educationInfo.gradeAverage && Number.parseFloat(educationInfo.gradeAverage) > 3.0) {
-          detailedRecommendations.push(
-            "학업 성취도 보완: 내신 성적이 아쉬운 경우, 자격증 취득이나 실무 능력으로 이를 상쇄해야 합니다. 특히 기술 분야 자격증은 학업 성적보다 더 중요하게 평가되므로, 관련 자격증 취득에 집중하세요.",
-          )
-        }
-
-        if (
-          !educationInfo.major?.includes("기계") &&
-          !educationInfo.major?.includes("전기") &&
-          !educationInfo.major?.includes("자동차")
-        ) {
-          detailedRecommendations.push(
-            "전공 연관성 강화: 전공이 생산직과 직접 연관이 없다면, 자동차 관련 온라인 강의 수강, 기술 서적 학습, 관련 세미나 참석 등을 통해 자동차 산업에 대한 이해도를 높이세요. 면접에서 이러한 노력을 구체적으로 어필할 수 있습니다.",
+            "🔄 보유 자격증 재활용 전략: 현재 보유한 자격증이 생산직과 직접 연관이 낮더라도 포기하지 마세요. 해당 자격증 취득 과정에서 보여준 학습능력, 목표달성 의지, 전문성 추구 자세를 어필 포인트로 활용하고, 동시에 생산직 관련 자격증 추가 취득 계획을 구체적으로 제시하세요.",
           )
         }
 
         detailedRecommendations.push(
-          "면접 준비 전략: 현대자동차의 핵심 가치인 '고객 최우선', '도전 정신', '소통과 협력'에 맞는 경험담을 준비하세요. 특히 팀워크, 문제해결 능력, 안전 의식에 대한 구체적인 사례를 준비하면 좋은 평가를 받을 수 있습니다.",
+          "💪 체력 및 안전 관리: 생산직은 3교대 근무와 물리적 작업이 많아 체력이 중요합니다. 꾸준한 운동으로 체력을 기르고, 산업안전보건법과 작업장 안전수칙을 숙지하여 안전 의식이 높다는 점을 어필하세요.",
         )
 
         detailedRecommendations.push(
-          "체력 관리 및 안전 의식 강화: 생산직은 체력이 중요하므로 꾸준한 운동과 건강 관리가 필요합니다. 또한 산업안전보건법, 작업장 안전수칙에 대한 기본 지식을 습득하여 안전 의식이 높다는 점을 어필하세요.",
+          "🎯 면접 핵심 전략: 현대자동차의 인재상인 '도전정신', '창의성', '협업능력'에 맞는 경험담을 준비하세요. 특히 '어려운 상황을 극복한 경험', '팀워크로 문제를 해결한 사례', '새로운 기술이나 지식을 습득한 경험'을 구체적으로 준비하면 좋은 평가를 받을 수 있습니다.",
         )
 
         setAnalysisResult({
@@ -220,6 +275,70 @@ export default function AnalysisResultPage() {
           similarProfiles: Math.floor(Math.random() * 50) + 20,
           recommendedCertifications,
         })
+
+        // Submit data to Google Sheets after analysis
+        try {
+          const { submitToGoogleSheets } = await import("@/lib/google-sheets")
+
+          const submissionData = {
+            // 기본 정보
+            name: basicInfo.name || "",
+            age: basicInfo.age || "",
+            education: basicInfo.education || "",
+            phone: basicInfo.phone || "",
+
+            // 고등학교 정보 (고졸인 경우)
+            ...(basicInfo.education === "고졸" && {
+              schoolType: educationInfo.schoolType || "",
+              gradeAverage: educationInfo.gradeAverage || "",
+              absences: educationInfo.absences || "",
+              earlyLeaves: educationInfo.earlyLeaves || "",
+              tardiness: educationInfo.tardiness || "",
+              results: educationInfo.results || "",
+            }),
+
+            // 대학교 정보 (대졸인 경우)
+            ...(basicInfo.education !== "고졸" && {
+              universityType: educationInfo.universityType || "",
+              universityName: educationInfo.universityName || "",
+              major: educationInfo.major || "",
+              gpa: educationInfo.gpa || "",
+              maxGpa: educationInfo.maxGpa || "",
+            }),
+
+            // 자격증 정보
+            technicalMaster: certificationInfo.technicalMaster || "없음",
+            engineer: Array.isArray(certificationInfo.engineer)
+              ? certificationInfo.engineer.join(", ")
+              : certificationInfo.engineer || "없음",
+            industrialEngineer: Array.isArray(certificationInfo.industrialEngineer)
+              ? certificationInfo.industrialEngineer.join(", ")
+              : certificationInfo.industrialEngineer || "없음",
+            craftsman: Array.isArray(certificationInfo.craftsman)
+              ? certificationInfo.craftsman.join(", ")
+              : certificationInfo.craftsman || "없음",
+            masterCraftsman: certificationInfo.masterCraftsman || "없음",
+
+            // 기타 정보
+            experience: certificationInfo.experience || "없음",
+            languageScore: certificationInfo.languageScore || "없음",
+            awards: certificationInfo.awards || "없음",
+
+            // 제출일시
+            submittedAt: new Date().toISOString(),
+          }
+
+          await submitToGoogleSheets(submissionData)
+          console.log("[v0] 데이터가 Google Sheets에 성공적으로 저장되었습니다.")
+        } catch (sheetsError) {
+          console.error("[v0] Google Sheets 저장 실패:", sheetsError)
+          // Google Sheets 오류가 발생해도 분석은 계속 진행
+        }
+
+        setTimeout(() => {
+          setShowConfetti(true)
+          setTimeout(() => setShowConfetti(false), 3000)
+        }, 500)
       } catch (error) {
         console.error("Analysis error:", error)
         // Fallback result
@@ -278,7 +397,27 @@ export default function AnalysisResultPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 p-3 sm:p-4 lg:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 p-3 sm:p-4 lg:p-6 relative">
+      {showConfetti && (
+        <div className="fixed inset-0 pointer-events-none z-50">
+          <div className="confetti-container">
+            {[...Array(50)].map((_, i) => (
+              <div
+                key={i}
+                className="confetti"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 3}s`,
+                  backgroundColor: ["#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#feca57", "#ff9ff3"][
+                    Math.floor(Math.random() * 6)
+                  ],
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="max-w-sm sm:max-w-md lg:max-w-2xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -470,6 +609,33 @@ export default function AnalysisResultPage() {
           </Button>
         </div>
       </div>
+
+      <style jsx>{`
+        .confetti-container {
+          position: relative;
+          width: 100%;
+          height: 100%;
+        }
+        
+        .confetti {
+          position: absolute;
+          width: 10px;
+          height: 10px;
+          background: #ff6b6b;
+          animation: confetti-fall 3s linear infinite;
+        }
+        
+        @keyframes confetti-fall {
+          0% {
+            transform: translateY(-100vh) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(100vh) rotate(720deg);
+            opacity: 0;
+          }
+        }
+      `}</style>
     </div>
   )
 }
